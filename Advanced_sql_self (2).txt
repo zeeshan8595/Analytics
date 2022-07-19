@@ -1,0 +1,310 @@
+-- ADVANCED SQL
+/* TOPICS COVERED IN ADVANCED SQL ARE
+1.TIMESTAMPS & EXTRACT
+2.MATH FUNCTIONS
+3.STRING FUNCTIONS
+4.SUBQUERY
+5.SELF JOINS */
+
+-- TIMESTAMPS & EXTRACT
+/*SHOW ALL
+SHOW TIMEZONE
+SELECT NOW()
+SELECT TIMEOFDAY()
+SELECT CURRENT_TIME
+SELECT CURRENT_DATE */
+SHOW ALL
+SHOW TIMEZONE --WILL DISPLAY THE SYSTEMS TIME ZONE
+
+SELECT NOW() -- WILL DISPLAY THE CURRENT TIME WITH DATE
+
+SELECT TIMEOFDAY() --IT WILL ALSO DISPLAY THE CURRENT TIME WITH DAY MONTH
+
+SELECT CURRENT_TIME --DISPLAY CURRENT TIME DIFFERENT FORMAT
+
+SELECT CURRENT_DATE -- WILL DIAPLAY THE CURRENT DATE
+
+--using EXTRACT we can extract the year,month,day,time from a given date
+select * from payment
+-- this payment table is having payment_date ,from this we can extract year,month etc
+-- the EXTRACT function extracts the required parameter from the time stamp
+
+select extract(year from payment_date) as payment_year from payment
+select extract(month from payment_date) as payment_month from payment 
+select extract ( day from payment_date) as payment_day from payment 
+
+--AGE function 
+--it returns the age from the given date to the current date
+select * from film
+--we have payment_date column in payment table, we can find the age of that transaction  
+select * from payment
+
+SELECT AGE(payment_date) FROM payment
+
+
+select to_char(payment_date,'month-yyyy') from payment --it will convert the date to string or (text in sql )
+--and return the o/p in the given format('month-yyyy')
+
+select to_char(payment_date,'mm-yy')from payment
+
+select to_char(payment_date,'mm-yyyy')from payment
+
+select to_char(payment_date,'month-yy')from payment
+
+select to_char(payment_date,'dd-mm-yy')from payment
+
+select to_char(payment_date,'mm-dd-yy')from payment
+
+
+--MATH FUNCTIONS
+--there are hundreads of ready made math functions and can be searched as and when required
+--finding the factrial is a inbult function
+
+SELECT x, factorial(x) FROM generate_series(0,100) AS x;
+--round function
+SELECT ROUND(rental_rate/replacement_cost,2)*100 AS percent_cost
+FROM film
+
+--STRING Functions
+
+select * from customer
+
+-- we can find the string length using length()
+
+select length(first_name) from customer 
+
+select length(title) from film
+
+--we can concatenate the string using || symbol
+
+select first_name || last_name from customer
+
+select upper(title) from film
+
+select lower(title) from film
+
+select upper(first_name) || lower(last_name) from customer
+
+-- we can give space between them
+
+select first_name || ' '|| last_name from customer
+
+-- in this way we can concatenate any string in sql
+
+select * from film
+
+select title || ':'|| description from film
+
+-- we can use the concat function also
+
+select concat(first_name,last_name)as full_name from customer
+
+
+
+--SUB QUERY
+--suppose we have calculated the average rental rate so we get a single value , but that value we can not store 
+--in avariable like in python we do. so how do we use this avg value later in our qurey. the answer is using
+--SUB-QUERY we can utilise the calculated avg value in the query
+
+select avg(rental_rate)from film
+
+-- if we want to know the movies which are having rental_rate greater than the average rental rate then we 
+-- have to use the sub query
+
+select title , rental_rate
+from film
+where rental_rate >(select avg(rental_rate) from film)
+--(select avg(rental_rate) from film) is the sub query
+
+
+
+select * from rental
+select * from inventory
+
+--wanted to know the titles of the movies for which the CD's has been returned 
+-- within specific date range
+
+-- we want to know the return date within particular range 
+
+select return_date
+from rental
+where return_date between '2005-05-29' and '2005-05-30'
+
+--we want film_id whose return date is in the given range
+-- but the film_id is not in the rental table , it is in inventory table, so we are joining these two tables
+-- using the common columns between them which is 'inventory_id'
+SELECT inventory.film_id
+FROM rental
+INNER JOIN inventory ON inventory.inventory_id = rental.inventory_id
+WHERE return_date BETWEEN '2005-05-29' AND '2005-05-30'
+
+--after that we want the title of the films we have got in the above query
+
+select title ,film_id
+from film
+where film_id IN (SELECT inventory.film_id
+FROM rental
+INNER JOIN inventory ON inventory.inventory_id = rental.inventory_id
+WHERE return_date BETWEEN '2005-05-29' AND '2005-05-30')
+
+-- in the obove example ultimately we wanted to know the titles of the movies for which the CD's has been returned 
+-- within specific date range
+
+-- to solve that problem this is the step by step approach
+-- 1. first we have extracted the entries in the specified date range 'return_date' from the rental table'say for one day'
+-- 2. but the rental table did not have the title of that movies, but it has the inventory_id col which is also
+-- 3. common in rental table , so we inner join that table to get the film_id from the inventory table
+-- after getting the film_id and return date we have use sub query to pass this output to the film table
+--to extract the titles from the film table
+
+
+-- SUPPOSE WE WANT TO FIND OUT WHICH FILM ID WAS RENTED TWICE
+
+SELECT * FROM RENTAL
+
+
+select * from film_actor
+select * from actor
+select * from film
+
+--we want the movies by title and thier language and length
+select title , language.name,film.length
+from film inner join language 
+on film.language_id=language.language_id
+
+-- this subquery return the movie names and thier actors using sub-query
+select concat(actor.first_name,'  ',actor.last_name )as actor_name
+from actor,film
+where film.title in(select f.title
+from film_actor fa inner join film f
+on fa.film_id=f.film_id)
+
+--SELF JOINS--
+
+--in SELF JOIN we join the same table itself
+-- for joining the same table with itself we have to use the different ALIAS for the same table
+/* EXAMPLE
+SELECT TABLEA.COL,TABLEB.COL
+FROM TABLE AS TABLEA
+JOIN TABLE AS TABLEB ON
+TABLEA.SOMECOL=TABLEB.OTHERCOL
+MEANS THE TABLE IS SAME BUT ALIAS IS DIFFERENT*/
+
+--EXAMPLE
+--SUPPOSE WE NEED TO FIND OUT ALL THOSE FILMS WHICH HAS THE SAME LENGTH
+
+SELECT * FROM FILM
+-- THIS FILM TABLE HAS LENGTH OF THE MOVIE ,we need to join the film table itself
+-- for finding a film of a specific length say 117 than
+select title ,length
+from film
+where length=117
+-- it displays all the movies that is having length 117
+
+--the same table film is joined itself to know the films are having the same length
+--each movie title length is compared with iteslf and others
+
+SELECT f1.title, f2.title, f1.length
+FROM film as f1
+INNER JOIN film AS f2 ON 
+f1.film_id = f2.film_id
+AND f1.length = f2.length
+
+-- to avoid the comparision with the movie itself we can see the below query!= added
+SELECT f1.title, f2.title, f1.length
+FROM film as f1
+INNER JOIN film AS f2 ON 
+f1.film_id != f2.film_id
+AND f1.length = f2.length
+
+--again one problem happened and that is the movie is not matching with itself but like
+-- Chamber Italian and Resurrection Silverado is compared having length 117
+-- again Resurrection Silverado and Chamber Italian is added into the result and it is same for each movie
+-- means the duplication happenes in this case , so how to avoid the duplications in the result
+-- can see the live example at SQL-III mayank at 1:05 min video given as homework
+
+
+-- CONDITIONALS EXPRESSIONS AND PROCEDURES
+
+-- CASE-it is used only to execute statements when certain conditions are met. it is very similar to IF/ELSE
+
+-- suppose we want to classify different payments from the payment table where
+-- if amount is less then 5 than --> low payment
+-- if amount is between 5-10 then --> medium payment
+-- if amount is greater than 10 --> high payment
+
+-- and afte classifying these payments i want to group them and count
+-- lets seee the example
+
+SELECT (CASE WHEN amount < 5 THEN 'low payment'
+		WHEN amount > 5 AND amount < 10 THEN
+		'Medium Payment' ELSE 'high payment'END) as payment_bands , count(*)--this count is used to count for diff
+		                                                                    --payment classes in the result
+FROM payment
+
+group by (CASE WHEN amount < 5 THEN 'low payment'
+		WHEN amount > 5 AND amount < 10 THEN
+		'Medium Payment' ELSE 'high payment'END) 
+		
+	
+-- in the groupby if we directly use the ALIAS payment_bands then also it works no need to copy the 
+-- entire query in group by but mayank told it is not a good practice ,we need to rewrite the query
+
+SELECT (CASE WHEN amount < 5 THEN 'low payment' --at this place we can give any thing like integer ,string
+		WHEN amount > 5 AND amount < 10 THEN
+		'Medium Payment' ELSE 'high payment'END) as payment_bands , count(*)--this count is used to count for diff
+		                                                                    --payment classes in the result
+FROM payment
+
+group by payment_bands
+
+-- one more example
+-- suppose we wanted to find out what is the total revenue in the above three classes low,medium,high
+--
+
+SELECT (CASE WHEN amount < 5 THEN 'low payment'
+	   WHEN amount >5 AND amount < 10 THEN'medium payment'
+	   ELSE 'High Payment' END) AS payment_bands , SUM(amount)-- need to add simply SUM(amount)
+FROM payment
+
+group by payment_bands 
+
+
+-- COALESCE
+-- THIS ACCEPTS THE UNLIMITED NUMBER OF ARGUMENTS AND RETURNS THE ARGUMNET WHICH IS NOT NULL
+-- OR
+-- WE CAN SAY THAT COALESCE IS USED WHEN WE HAVE MIGHT HAVE THE NULL VALUES IN THE COLUMN
+-- WE CAN SPECIFY THE DEFAULT VALUE FOR THE NULL VALUES
+-- EXAMPLE-- SELECT revenue * COALESCE(profit%,5) ,,whenever it encounters the null for 
+-- profit% it will bydefault consider the value 5
+
+
+-- CAST--
+-- CAST is used to chage the datatype of a column
+-- example
+
+SELECT amount, CAST(amount as varchar(20)) as STRING_AMount
+FROM payment
+
+--NULL IF--
+-- it returns NULL if both arguments are equal else if they are not equal then it returns first argement
+-- the NULLIF() is rarely used
+
+-- example
+select nullif(10,10) 
+from payment 
+-- in the output we can see all null because we have given(10,10)
+
+select nullif(10,12)
+from payment
+-- returns the first argument always
+
+-- VIEWS (TEMPORARY TABLE)
+-- SOMETIMES WE NEED TO EXECUTE A QUERY AGAIN N AGAIN SO INSTEAD OF THAT WE CAN CREATE A VIEW 
+-- AND SIMPLY CALL THAT VIEW WHENEVER WE WANT LIKE FUNCTION THAT NO NEED TO WRITE THE CODE SIMPLY
+-- CALL THE FUNCTION
+--THE VIEW CAN BE ACCESSED AS VIRTUAL TABLE AND IT DOES NOT STORE THE DATA PHYSICALLY RATHER IT SIMPLY STORES 
+--THE QUERY, THE VIEW WILL BE DISCUSSED IN DDL
+-- IT IS A GOOD PRACTICE TO CREATE A TABLE THEN DELETE IT AFTER USE RATHER CREATING THE VIEWS
+
+

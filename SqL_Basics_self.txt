@@ -1,0 +1,276 @@
+select * from payment
+select payment_id,amount from payment
+
+select amount,customer_id from payment
+where amount > 9
+
+select amount from payment
+where customer_id=341 and amount > 5
+
+select amount,customer_id from payment
+where amount>5 and customer_id=341 
+-- the distinct clause is used to select only unique values from the given columns
+select distinct customer_id,amount
+from payment
+
+/*the count () can be used with distinct to know the number of occurances of distinct count */
+select distinct customer_id
+from payment
+
+select count(distinct customer_id)
+from payment
+
+
+select * from payment 
+select count(distinct staff_id)
+from payment
+
+/* the WHERE clause is used to extract the recoreds if  it fulfills a certain condition */
+select customer_id , amount
+from payment
+where amount <7
+
+/*one more example*/
+select customer_id,amount
+from payment
+where  customer_id=341
+
+/* BETWEEN Clause can be used with Where to specify a range */
+select customer_id ,amount
+from payment
+where amount between 5 and 10;
+
+select customer_id 
+from payment
+where customer_id between 250 and 400
+
+
+/* the Like clause is used to match a pattern*/
+select * from address
+
+select district 
+from address
+where district like 'a%'; /*it means extract those districts that are starting with 'a' follwed by any number of 
+characters*/
+
+/*similarly another example where the city ends with character 'a' */
+
+select district
+from address
+where district like '%a'
+
+/* another example is %a% means it should contain a follwed and preceeded by any characters*/
+select district 
+from address
+where district like '%a%'
+
+/* the IN clause is used to specify the multiple possible values for a cloumn*/
+
+select address,district
+from address
+where district IN ('Bihar','Dhaka');
+
+select * from payment
+
+/* AND , OR ,NOT Operators*/
+/* the AND operator */
+select customer_id , amount
+from payment
+where amount >=5 AND customer_id =341
+
+/*more example using address table*/
+select district,city_id from address
+where district='Bihar' and  city_id between 100 and 350
+
+select * from address
+
+/* the OR operator*/
+
+select customer_id , amount
+from payment
+where amount<=9 OR customer_id=341
+
+select city_id, district
+from address
+where district='Bihar' OR district='Dhaka'
+
+/* the NOT operator*/
+
+select address, district
+from address
+where not district='Bihar' and not district='Alberta'
+
+/*combining all three operators*/
+
+select address,district,city_id
+from address
+where district ='Bihar' and (city_id=110 or city_id=346 or city_id=264)
+
+select address, district 
+from address 
+where NOT  district='Bihar' AND NOT district='Alberta'
+
+
+/* the ORDER BY Keyword is used to sort the result-set in to ascending or descending order
+by default the orderby sorts in ascending order , if we want to sort it in desecending then use DESC*/
+
+select customer_id 
+from payment
+order by customer_id desc
+
+
+select customer_id ,amount
+from payment
+order by amount desc
+
+/* using the ORDER BY with multiple Columns*/
+
+select address,district
+from address
+order by district asc, city_id desc
+
+/* MIN MAX functions in SQL*/
+select MIN(amount)
+from payment
+where customer_id=341
+
+/* Similarly for MAX */
+
+select MAX(amount)
+from payment
+where customer_id=341
+
+/*we can use ALIAS as also*/
+select min(amount) AS Minimun_payment_done
+from payment
+where customer_id=341 
+
+select max(amount) as maximum_payment_done
+from payment
+where customer_id=341
+
+/*the COUNT(),AVG(),SUM() functions*/
+
+select count(amount) as number_of_payments
+from payment
+where customer_id=341
+
+select avg(amount) as avg_amount
+from payment
+where customer_id=341
+
+select sum(amount)
+from payment
+where customer_id=341
+
+
+/* the LIKE operator is used with where clause to search fro a pattern.
+it is used in conjunction with '%' or '_'*/
+select address , district
+from address
+where district like '%a'
+
+select address,district
+from address
+where district like 'a%'
+
+/*we can give any character or a substring */
+select address,district
+from address
+where district like 'Bi%';
+
+select address,district
+from address
+where district like '%b';
+
+select address,district
+from address
+where district like 'Pu%';
+
+/*'_'means before b exactly one character can be occur and % means after b any number of character*/
+select address,district
+from address
+where district like '_b%';
+
+select address,district
+from address
+where district like '%a_';
+
+/*starting and ending with M and ending with n in between any number of characters allowed*/
+
+select address,district
+from address
+where district like 'M%n';
+
+select address,district
+from address
+where district like 'B_ha_';
+
+select max(customer_id)
+from customer
+where first_name like ('E%') and address_id <500;
+
+-- Assignemnt Q.3
+select max(customer_id)
+from customer
+where first_name like ('E%') and address_id<500
+
+select * from payment
+-- assignment Q2
+select count(title)
+from film
+where title like ('J%')
+--Assignment 1- question-1
+select customer_id ,sum(amount)
+from payment
+where staff_id=2 /*means the rows having staff id 2 will only be considered for analysis*/
+group by customer_id
+having sum(amount)>=110 /*from the output set we are giving a condition*/
+
+
+/* the IN Operator allows to specify multiple values in a WHERE clause*/
+
+select address, district
+from address
+where district IN ('Bihar','Dhaka');
+
+/* we can use the NOT IN  operator also*/
+select address,district
+from address
+where  district NOT IN ('Bihar','Dhaka')
+
+/* BETWEEN operator is used to specify a range*/
+/* the value given in between operator can be text,number or date*/
+select city_id,district
+from address
+where city_id BETWEEN 100 and 450
+
+/* example date as value */
+
+select customer_id,rental_id,return_date
+from rental
+where return_date between '05/29/2005' AND '07/05/2005'
+
+/*ALIAS is used to give temporary names to columns or tables*/
+/* ALIAS for Columns*/
+
+select district AS state_,phone as mobile
+from address
+
+
+
+/*OR we can give ALIAS fro tables also*/
+
+select * from payment
+/* here we have accessed different columns from different tables using tables alias, the distrct and city_id is 
+from address table and customer_id is from payment table */
+
+select a.district,a.city_id ,p.customer_id
+from address as a,payment as p
+
+
+/* one more example with conditiionn */
+
+select a.district, a.city_id,p.customer_id,p.amount
+from address as a,payment as p
+where p.amount>=8 and a.city_id>100

@@ -1,0 +1,233 @@
+--CREATING DATABASES AND TABLES
+
+
+-- this is called the schema for table Account
+CREATE TABLE Account(
+	user_id  serial primary key,
+	user_name varchar(40) unique not null,
+	password varchar(20) not null,
+	email varchar(30) unique not null,
+	created_on timestamp not null,
+	last_login timestamp      --if the null value is allowed then no need to specify anything just leave
+)
+
+
+
+
+SELECT * FROM Account --here we have created an empty table
+
+-- now we will insert the values for the column
+
+insert into Account (user_name,password,email,created_on)
+values
+('tareque','P@ssw54rd11','tareque.chaus@gmail.com',current_timestamp)--automatically user_id which is primary key is
+--is generated because the data type we have mentioned is 'serial'
+
+-- lets create anaother table job
+create table job (
+	job_id serial primary key not null,
+	job_name varchar(50) unique not null
+
+)
+select * from job
+
+insert into job(job_name)
+values('teacher'),('advocate'),('lawyer') --in this way we can insert multiple values at the same time
+
+
+--we will create a third table called Account_dob
+
+create table Account_job(
+	user_id integer references Account(user_id),
+	job_id integer references job(job_id),
+	hire_date timestamp
+)
+
+insert into Account_job(user_id,job_id,hire_date)
+values (1,1,current_timestamp) --point to remember is we are referencing the user_id and the job_id from other tables
+-- so we must use the values for these columns that already initialised other wise will throw an error
+--example
+-- error : not present in the table may be displayed
+insert into Account_job(user_id,job_id,hire_date)
+values(10,9,current_timestamp)
+
+select * from Account_job
+
+--UPDATE TABLE -
+
+select * from Account -- suppose in Account table we want to update the last_login with current_timestamp
+
+UPDATE Account
+SET last_login=current_timestamp
+
+select *  from Account -- see in th ACcount table the values for last_login filled with current time
+
+--the entire column of the last login is filled with current time 
+
+--suppose we want to update a specific  entry not the entire colum then
+--SIMPLE
+UPDATE Account
+SET last_login=current_timestamp
+WHERE user_id=1 
+
+select * from Account
+
+-- we can update the hire_date from the Account_job as created_on from Account table
+
+--it means we can update the value of table from the value of the other table that is in our example 
+-- like hire_date is updated from the created_date
+
+--example
+
+UPDATE Account_job
+SET hire_date=Account.created_on
+from Account
+where Account_job.user_id=Account.user_id
+
+select * from Account_job
+
+
+-- DELETE THE TABLE
+--WE CAN DELETE SPECIFIC ROWS FROM THE TABLE
+
+--FIRST WE INSERT SOME ROW IN THE JOB TABLE 
+INSERT INTO job(job_name)
+values ('principal')
+
+-- after inserting the value principal we will delete it
+
+DELETE from job
+where job_name='principal'
+
+--we can use the RETURNING CLAUSE which returns the value we specify
+DELETE FROM JOB
+WHERE JOB_NAME='principal'
+RETURNING JOB_ID,JOB_NAME
+
+
+
+--ALTER TABLE
+
+--ALTER TABLE IS USED FOR THE FOLLOWING
+--1. RENAME THE TABLE
+--2. RENAME THE COLUMN OF A TABLE 
+--3. SIMPLY WE CAN SAY IF ANYTHING WE WANT TO CHANGE THAT RELATES TO THE SCHEMA OF A TABLE
+
+--TO UNDERSTAND THE ALTER TABLE WE ARE CRAETING A NEW TABLE CALLED 'INFORMATION'
+
+CREATE TABLE information(
+	info_id serial primary key,
+	title varchar(200)  not null,
+	person varchar(200) unique not null
+)
+
+
+select * from information
+
+insert into information(title,person)
+values('Dr','Zeeshan')
+
+
+--RENAMING THE TABLE
+
+ALTER TABLE information
+RENAME TO info_table
+
+select * from info_table
+
+
+--Renaming the column of a Table
+
+ALTER TABLE info_table
+RENAME COLUMN PERSON TO PEOPLE
+
+SELECT * FROM info_table
+
+
+--ALTERING THE CONSTRAINTS 
+-- like we have define the constraint in the person columns that it should not null
+-- to change the not null see the below example
+
+ALTER TABLE info_table
+ALTER COLUMN PEOPLE DROP NOT NULL
+
+--setting and dropping the constarints also possible
+--NOW WE CAN KEEP THE PEOPLE COL NULL ALSO
+
+INSERT INTO info_table(title)
+values('sir')
+
+
+select * from info_table
+
+--WE CAN DEFINE THE CONSTARINT 
+select * from info_table
+
+ALTER TABLE info_table
+ALTER COLUMN people set not null
+-- so again we have set the constraint for people to not null
+
+--DROP TABLES
+
+--WE CAN DROP THE COLUMN FROM A TABLE
+-- WE CAN DROP THE ENTIRE TABLE 
+
+ALTER TABLE info_table
+DROP COLUMN PEOPLE
+
+select * from info_table
+
+-- it is a good practice to use IF EXISTS command with the drop table or column
+-- because id the col or a table does not exist than it will throw the exception and halt so 
+-- when we automate the query than it will halt the execution so to avoid the halt of execution'
+-- always use IF EXISTS means if the table or column does not exist than it will contine with
+-- rest of the thing 
+
+-- now again if we try to delete the column people with IF EXISTS than it will show a notice not an error 
+--IT SHOWS THE QUERY RETURN SUCCESSFULLY EVEN IF THE COL PEOPLE DOES NOT EXIST
+
+ALTER TABLE info_table
+DROP COLUMN IF EXISTS PEOPLE
+
+--AND WITHOUT IF EXIST IT WILL THROW THE ERROR
+
+ALTER TABLE info_table
+DROP COLUMN PEOPLE
+
+
+--THE CHECK CONSTRAINT
+-- CREATING A NEW TABLE TO UNDERSTAND THE CHECK CONSTRAINTS
+CREATE TABLE employees(
+	emp_id SERIAL PRIMARY KEY,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	birthdate DATE CHECK ( birthdate > '2000-01-01' ),
+	hire_date DATE CHECK ( hire_date > birthdate ),
+	salary INTEGER CHECK ( salary > 0 )
+	)
+	
+-- LIKE THE NOT NULL WE VCAN DEFINE THE CHECK CONSTRAINT ALSO
+-- CHECK CONSTRAINT HAVE SOME CONDITION INTO IT LIKE BIRTH DATE SHOULD BE GREATER THEN THE SPECIFIED DATE
+-- OTHER WISE IT WILL RAISE AN ERROR
+--SIMILARLY FOR THE SALARY CAN NOT BE LESS THAN 0
+
+INSERT INTO employees(
+	first_name,
+	last_name,
+	birthdate,
+	hire_date,
+	salary)
+values('zeeshan','shaikh','2002-01-01','2022-11-11',90000)
+
+--added the data successfully but if we try to add any value that violates the check constriant
+-- than it will throw the error like below
+
+INSERT INTO employees(
+	first_name,
+	last_name,
+	birthdate,
+	hire_date,
+	salary
+)
+VALUES
+( 'zeeeeshan', 'raziuddin', '1997-11-15', '2020-11-23', 1000 )

@@ -1,0 +1,142 @@
+--JOINS 
+-- a join is used to combine the rows from two or more tables based on the realted or a common columns that 
+-- exist in the tables
+
+-- we have different types of JOINS in SQL
+-- INNER JOIN--INTERSECTION
+-- LEFT JOIN-- ALL ELEMENTS FROM LEFT TABLE
+-- RIGHT JOIN-- ALL ELEMENTS FROM RIGHT TABLE
+-- FULL JOIN/OUTER JOIN--UNION
+-- SELF JOIN
+
+-- INNER JOIN-- THIS JOINS SELECTS THE ROWS OR RECOREDS THAT IS HAVING MATCHING OR COMMON VALUES IN BOTH
+--OF THE TABLES /// OR SIMPLY WE CAN SAY INTERSECTION OF TWO TABLES
+
+-- SYNTAX--
+-- select * from table A
+-- INNER JOIN table B
+-- ON table A.col=table B.col
+
+--CREATING SIMPLE TABLES TO UNDERSTAND THE JOINS
+CREATE TABLE my_pets(
+	dog_name VARCHAR(50) UNIQUE,
+	good_boy VARCHAR(50)
+)
+select * from my_pets
+
+CREATE TABLE orphange_pets(
+	dog_name VARCHAR(50) UNIQUE,
+	age integer
+)
+select * from orphange_pets
+-- adding the rows to both tables
+
+INSERT INTO my_pets(dog_name, good_boy)
+VALUES 
+( 'pluto', 'N')
+
+insert into orphange_pets(dog_name,age)
+values
+('zorro',9)
+
+--we will see different joins on these sample tables my_pets,orphange_pets
+
+-- inner join--only common elements it will consider*inner_join='intersection'
+select * 
+from my_pets inner join orphange_pets
+on my_pets.dog_name=orphange_pets.dog_name
+
+--instead of all column(*)we can select specific columns
+
+select m.dog_name,m.good_boy,o.age 
+from my_pets m inner join orphange_pets o
+on o.dog_name=m.dog_name
+
+
+
+--LEFT JOIN
+--will return all the entries from the left table, orphange_pets in this case
+
+select m.dog_name,m.good_boy,o.age 
+from my_pets m left join orphange_pets o
+on  o.dog_name=m.dog_name
+
+
+--reverse tables now
+select o.dog_name,m.good_boy,o.age 
+from orphange_pets o left join my_pets m
+on  o.dog_name=m.dog_name
+
+--we can define some condition also
+select o.dog_name,m.good_boy,o.age 
+from orphange_pets o left join my_pets m
+on  o.dog_name=m.dog_name
+where o.age is null
+
+--FULL JOIN
+select m.dog_name ,m.good_boy,o.age
+from orphange_pets o full outer join my_pets m
+on  o.dog_name=m.dog_name
+
+
+-- JOIN EXAMPLES ON ACTUAL DATA (OUR TAR FILE)
+--example  the column customer_id is common in both of the tables
+select * 
+from payment inner join customer
+ON payment.customer_id=customer.customer_id
+
+select * from customer
+
+-- the column address_id is common in both tables
+--using this common table we can able to join the two tables
+select * 
+from address inner join customer
+ON address.address_id=customer.address_id
+
+--now instead of giving (*) we will specify some column
+select customer.first_name,customer.last_name,payment.amount,date(payment.payment_date) 
+from payment inner join customer
+ON payment.customer_id=customer.customer_id
+
+
+--LEFT OUTER JOIN
+
+select * 
+from payment full outer join customer
+ON payment.customer_id=customer.customer_id
+
+select * 
+from payment LEFT OUTER join customer
+ON payment.customer_id=customer.customer_id
+
+
+--WE CAN SPECIFY SOME CONDITION USING WHERE CLAUSE
+select * 
+from payment left OUTER join customer
+ON payment.customer_id=customer.customer_id
+where payment.customer_id is null or customer.customer_id is null
+
+
+SELECT COUNT(DISTINCT customer_id) FROM payment
+SELECT COUNT(DISTINCT customer_id) FROM customer
+
+--FULL OUTER JOIN
+select * 
+from payment full outer join customer
+ON payment.customer_id=customer.customer_id
+where payment.customer_id is null or customer.customer_id is null
+-- no null values present so it not displaying anything
+
+
+select * from film
+select * from inventory
+
+--full outer join
+select f.title,f.length,i.inventory_id
+from film f full outer join inventory i
+on f.film_id=i.film_id
+
+--left outer join
+select f.title,f.length,i.inventory_id
+from film f left outer join inventory i
+on f.film_id=i.film_id
